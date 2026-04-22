@@ -1,0 +1,1001 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LocalDrop — P2P File Transfer</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --border: #1e1e2e;
+    --accent: #00ff9d;
+    --accent2: #7b61ff;
+    --danger: #ff4d6d;
+    --text: #e8e8f0;
+    --muted: #555570;
+    --card: #13131d;
+  }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated grid background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,255,157,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,255,157,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .glow-orb {
+    position: fixed;
+    width: 500px; height: 500px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(123,97,255,0.12) 0%, transparent 70%);
+    top: -100px; right: -100px;
+    pointer-events: none;
+    z-index: 0;
+    animation: orb-drift 8s ease-in-out infinite alternate;
+  }
+  .glow-orb2 {
+    position: fixed;
+    width: 400px; height: 400px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(0,255,157,0.08) 0%, transparent 70%);
+    bottom: -80px; left: -80px;
+    pointer-events: none;
+    z-index: 0;
+    animation: orb-drift 10s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes orb-drift {
+    from { transform: translate(0,0); }
+    to { transform: translate(30px, 30px); }
+  }
+
+  .app {
+    position: relative;
+    z-index: 1;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 60px;
+  }
+
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .logo-icon {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px;
+  }
+
+  h1 {
+    font-size: 2.8rem;
+    font-weight: 800;
+    letter-spacing: -1px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .tagline {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-top: 6px;
+  }
+
+  /* Mode tabs */
+  .mode-tabs {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 36px;
+    background: var(--surface);
+  }
+
+  .tab-btn {
+    flex: 1;
+    padding: 14px 20px;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'Syne', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+
+  .tab-btn.active {
+    background: linear-gradient(135deg, rgba(0,255,157,0.1), rgba(123,97,255,0.1));
+    color: var(--accent);
+    border-bottom: 2px solid var(--accent);
+  }
+
+  .tab-btn:hover:not(.active) { color: var(--text); background: rgba(255,255,255,0.03); }
+
+  /* Panels */
+  .panel { display: none; }
+  .panel.active { display: block; animation: fade-in 0.3s ease; }
+
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 20px;
+  }
+
+  .card-title {
+    font-size: 0.7rem;
+    font-family: 'Space Mono', monospace;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+
+  /* Drop zone */
+  .drop-zone {
+    border: 2px dashed var(--border);
+    border-radius: 12px;
+    padding: 50px 30px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .drop-zone::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(0,255,157,0.05), rgba(123,97,255,0.05));
+    opacity: 0;
+    transition: opacity 0.25s;
+  }
+
+  .drop-zone:hover, .drop-zone.dragover {
+    border-color: var(--accent);
+  }
+  .drop-zone:hover::before, .drop-zone.dragover::before { opacity: 1; }
+
+  .drop-icon {
+    font-size: 3rem;
+    margin-bottom: 14px;
+    display: block;
+    filter: grayscale(0.3);
+  }
+
+  .drop-text {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+
+  .drop-sub {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  input[type="file"] { display: none; }
+
+  /* Buttons */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 10px;
+    border: none;
+    font-family: 'Syne', sans-serif;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #00cc7a);
+    color: #000;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 25px rgba(0,255,157,0.3); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .btn-secondary {
+    background: rgba(255,255,255,0.05);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  .btn-secondary:hover { background: rgba(255,255,255,0.1); }
+
+  .btn-danger {
+    background: rgba(255,77,109,0.15);
+    color: var(--danger);
+    border: 1px solid rgba(255,77,109,0.3);
+  }
+  .btn-danger:hover { background: rgba(255,77,109,0.25); }
+
+  .btn-full { width: 100%; }
+
+  /* Input */
+  .input-group { margin-bottom: 16px; }
+  .input-label {
+    display: block;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .input-field {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .input-field:focus { border-color: var(--accent); }
+  .input-field::placeholder { color: var(--muted); }
+
+  /* Code box */
+  .code-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: 8px;
+    color: var(--accent);
+    text-align: center;
+    margin: 16px 0;
+    word-break: break-all;
+  }
+
+  /* File list */
+  .file-list { display: flex; flex-direction: column; gap: 10px; margin-top: 16px; }
+
+  .file-item {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    transition: border-color 0.2s;
+  }
+
+  .file-item.transferring { border-color: var(--accent2); }
+  .file-item.done { border-color: var(--accent); }
+
+  .file-icon { font-size: 1.5rem; flex-shrink: 0; }
+
+  .file-info { flex: 1; min-width: 0; }
+  .file-name {
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .file-size {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .file-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-top: 8px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    width: 0%;
+    transition: width 0.3s ease;
+  }
+
+  /* Status badge */
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 700;
+  }
+
+  .status-badge.idle { background: rgba(255,255,255,0.06); color: var(--muted); }
+  .status-badge.connected { background: rgba(0,255,157,0.12); color: var(--accent); }
+  .status-badge.error { background: rgba(255,77,109,0.12); color: var(--danger); }
+  .status-badge.waiting { background: rgba(123,97,255,0.12); color: var(--accent2); }
+
+  .pulse {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    animation: pulse-anim 1.5s ease-in-out infinite;
+  }
+  @keyframes pulse-anim {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.7); }
+  }
+
+  /* Connection header */
+  .conn-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  /* How it works */
+  .how-steps {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-top: 10px;
+  }
+
+  .how-step {
+    padding: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    text-align: center;
+  }
+
+  .step-num {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--accent);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 10px;
+  }
+
+  .step-icon { font-size: 1.8rem; margin-bottom: 8px; }
+  .step-text { font-size: 0.85rem; color: var(--muted); line-height: 1.5; }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 16px 0;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* Toast */
+  #toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--card);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    padding: 12px 24px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--accent);
+    z-index: 999;
+    transition: transform 0.3s ease;
+    white-space: nowrap;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+
+  /* Textarea for SDP */
+  .sdp-area {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--text);
+    outline: none;
+    resize: vertical;
+    min-height: 80px;
+    transition: border-color 0.2s;
+  }
+  .sdp-area:focus { border-color: var(--accent); }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media (max-width: 600px) { .two-col { grid-template-columns: 1fr; } }
+
+  .info-box {
+    background: rgba(123,97,255,0.08);
+    border: 1px solid rgba(123,97,255,0.2);
+    border-radius: 10px;
+    padding: 14px 16px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--accent2);
+    line-height: 1.7;
+  }
+
+  small { font-family: 'Space Mono', monospace; font-size: 0.68rem; color: var(--muted); }
+
+  .received-files { display: flex; flex-direction: column; gap: 10px; margin-top: 12px; }
+
+  .empty-state {
+    text-align: center;
+    padding: 30px;
+    color: var(--muted);
+    font-family: 'Space Mono', monospace;
+    font-size: 0.75rem;
+  }
+</style>
+</head>
+<body>
+<div class="glow-orb"></div>
+<div class="glow-orb2"></div>
+
+<div class="app">
+  <header>
+    <div class="logo">
+      <div class="logo-icon">⚡</div>
+      <h1>LocalDrop</h1>
+    </div>
+    <p class="tagline">Peer-to-Peer · No Server · No Cloud · No Limits</p>
+  </header>
+
+  <div class="mode-tabs">
+    <button class="tab-btn active" onclick="switchTab('send')">📤 Send Files</button>
+    <button class="tab-btn" onclick="switchTab('receive')">📥 Receive Files</button>
+    <button class="tab-btn" onclick="switchTab('how')">💡 How It Works</button>
+  </div>
+
+  <!-- SEND PANEL -->
+  <div class="panel active" id="panel-send">
+    <div class="card">
+      <div class="conn-header">
+        <div class="card-title" style="margin-bottom:0">Connection</div>
+        <div id="send-status" class="status-badge idle"><div class="pulse"></div> Not Connected</div>
+      </div>
+
+      <div class="info-box" style="margin-bottom:16px">
+        🔒 Files transfer directly between browsers using WebRTC — nothing goes to any server. Both PCs must be on the same or different networks.
+      </div>
+
+      <div id="send-step1">
+        <p style="font-size:0.85rem; color:var(--muted); margin-bottom:14px;">Step 1: Click "Create Offer" and share the code with the receiver.</p>
+        <button class="btn btn-primary btn-full" onclick="createOffer()">🔗 Create Connection Offer</button>
+      </div>
+
+      <div id="send-step2" style="display:none">
+        <div class="input-group">
+          <label class="input-label">Your Offer Code (copy & send to receiver)</label>
+          <textarea class="sdp-area" id="send-offer-sdp" readonly></textarea>
+        </div>
+        <button class="btn btn-secondary" style="margin-bottom:16px" onclick="copySDP('send-offer-sdp')">📋 Copy Offer Code</button>
+
+        <div class="divider">waiting for receiver answer</div>
+
+        <div class="input-group">
+          <label class="input-label">Paste Receiver's Answer Code</label>
+          <textarea class="sdp-area" id="send-answer-sdp" placeholder="Paste the answer code from the receiver here..."></textarea>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="connectWithAnswer()">✅ Connect</button>
+      </div>
+    </div>
+
+    <div class="card" id="send-files-card" style="display:none">
+      <div class="card-title">Files to Send</div>
+      <div class="drop-zone" id="drop-zone" onclick="document.getElementById('file-input').click()" ondragover="handleDragOver(event)" ondragleave="handleDragLeave(event)" ondrop="handleDrop(event)">
+        <span class="drop-icon">🗂️</span>
+        <div class="drop-text">Drop files here or click to browse</div>
+        <div class="drop-sub">Any file type · Any size</div>
+      </div>
+      <input type="file" id="file-input" multiple onchange="addFiles(this.files)">
+      <div class="file-list" id="send-file-list"></div>
+    </div>
+  </div>
+
+  <!-- RECEIVE PANEL -->
+  <div class="panel" id="panel-receive">
+    <div class="card">
+      <div class="conn-header">
+        <div class="card-title" style="margin-bottom:0">Connection</div>
+        <div id="recv-status" class="status-badge idle"><div class="pulse"></div> Not Connected</div>
+      </div>
+
+      <div id="recv-step1">
+        <div class="input-group">
+          <label class="input-label">Paste Sender's Offer Code</label>
+          <textarea class="sdp-area" id="recv-offer-sdp" placeholder="Paste the offer code from the sender here..."></textarea>
+        </div>
+        <button class="btn btn-primary btn-full" onclick="createAnswer()">📡 Generate Answer</button>
+      </div>
+
+      <div id="recv-step2" style="display:none">
+        <div class="input-group">
+          <label class="input-label">Your Answer Code (copy & send back to sender)</label>
+          <textarea class="sdp-area" id="recv-answer-sdp" readonly></textarea>
+        </div>
+        <button class="btn btn-secondary btn-full" onclick="copySDP('recv-answer-sdp')">📋 Copy Answer Code</button>
+        <p style="font-size:0.8rem; color:var(--muted); margin-top:10px; text-align:center;">Waiting for sender to connect...</p>
+      </div>
+    </div>
+
+    <div class="card" id="recv-files-card">
+      <div class="card-title">Received Files</div>
+      <div id="received-list" class="received-files">
+        <div class="empty-state">No files received yet.<br>Connect to a sender first.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOW IT WORKS -->
+  <div class="panel" id="panel-how">
+    <div class="card">
+      <div class="card-title">How LocalDrop Works</div>
+      <div class="how-steps">
+        <div class="how-step">
+          <div class="step-num">Step 01</div>
+          <div class="step-icon">📤</div>
+          <div class="step-text"><strong>Sender</strong> opens the Send tab and clicks "Create Offer" to generate a connection code.</div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">Step 02</div>
+          <div class="step-icon">📨</div>
+          <div class="step-text">Sender copies the offer code and sends it to the receiver (chat, email, etc).</div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">Step 03</div>
+          <div class="step-icon">📥</div>
+          <div class="step-text"><strong>Receiver</strong> pastes the code in the Receive tab and clicks "Generate Answer".</div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">Step 04</div>
+          <div class="step-icon">🔗</div>
+          <div class="step-text">Receiver sends back their answer code. Sender pastes it and connects.</div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">Step 05</div>
+          <div class="step-icon">⚡</div>
+          <div class="step-text">Direct P2P connection established. Drop files and transfer at full speed!</div>
+        </div>
+        <div class="how-step">
+          <div class="step-num">Bonus</div>
+          <div class="step-icon">🔒</div>
+          <div class="step-text">100% encrypted WebRTC — no servers, no cloud storage, no size limits.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ─── State ───────────────────────────────────────────────────────────────────
+let pc = null;           // RTCPeerConnection (sender)
+let pcRecv = null;       // RTCPeerConnection (receiver)
+let dataChannel = null;
+let sendFiles = [];      // Files queued to send
+let receiveBuffer = {};  // fileName -> {buffer:[], received, total, type}
+
+const CHUNK_SIZE = 64 * 1024; // 64KB chunks
+
+// ─── Tab switching ────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+// ─── Toast ───────────────────────────────────────────────────────────────────
+function toast(msg, dur = 2500) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
+}
+
+function copySDP(id) {
+  const el = document.getElementById(id);
+  navigator.clipboard.writeText(el.value).then(() => toast('✅ Copied to clipboard!'));
+}
+
+// ─── ICE helpers ─────────────────────────────────────────────────────────────
+function waitForICE(peerConn) {
+  return new Promise(resolve => {
+    if (peerConn.iceGatheringState === 'complete') { resolve(); return; }
+    peerConn.addEventListener('icegatheringstatechange', () => {
+      if (peerConn.iceGatheringState === 'complete') resolve();
+    });
+    // Fallback timeout
+    setTimeout(resolve, 3000);
+  });
+}
+
+// ─── SENDER ──────────────────────────────────────────────────────────────────
+async function createOffer() {
+  pc = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+
+  dataChannel = pc.createDataChannel('files', { ordered: true });
+  setupSenderChannel(dataChannel);
+
+  pc.oniceconnectionstatechange = () => {
+    const s = pc.iceConnectionState;
+    const badge = document.getElementById('send-status');
+    if (s === 'connected' || s === 'completed') {
+      badge.className = 'status-badge connected';
+      badge.innerHTML = '<div class="pulse"></div> Connected';
+      document.getElementById('send-files-card').style.display = 'block';
+      toast('🎉 Connected! Drop files to send.');
+    } else if (s === 'failed' || s === 'disconnected') {
+      badge.className = 'status-badge error';
+      badge.innerHTML = '<div class="pulse"></div> Disconnected';
+    } else {
+      badge.className = 'status-badge waiting';
+      badge.innerHTML = '<div class="pulse"></div> Connecting…';
+    }
+  };
+
+  const offer = await pc.createOffer();
+  await pc.setLocalDescription(offer);
+  await waitForICE(pc);
+
+  document.getElementById('send-offer-sdp').value = JSON.stringify(pc.localDescription);
+  document.getElementById('send-step1').style.display = 'none';
+  document.getElementById('send-step2').style.display = 'block';
+  document.getElementById('send-status').className = 'status-badge waiting';
+  document.getElementById('send-status').innerHTML = '<div class="pulse"></div> Waiting for Answer';
+}
+
+async function connectWithAnswer() {
+  const val = document.getElementById('send-answer-sdp').value.trim();
+  if (!val) { toast('⚠️ Paste the answer code first'); return; }
+  try {
+    const answer = JSON.parse(val);
+    await pc.setRemoteDescription(new RTCSessionDescription(answer));
+    toast('🔗 Connecting…');
+  } catch (e) {
+    toast('❌ Invalid answer code');
+  }
+}
+
+function setupSenderChannel(ch) {
+  ch.onopen = () => console.log('DataChannel open');
+  ch.onclose = () => console.log('DataChannel closed');
+}
+
+// ─── File drop / pick ─────────────────────────────────────────────────────────
+function handleDragOver(e) {
+  e.preventDefault();
+  e.currentTarget.classList.add('dragover');
+}
+function handleDragLeave(e) {
+  e.currentTarget.classList.remove('dragover');
+}
+function handleDrop(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('dragover');
+  addFiles(e.dataTransfer.files);
+}
+
+function getFileIcon(name) {
+  const ext = name.split('.').pop().toLowerCase();
+  const map = {
+    pdf: '📄', doc: '📝', docx: '📝', txt: '📃',
+    jpg: '🖼️', jpeg: '🖼️', png: '🖼️', gif: '🎨', svg: '🎨', webp: '🖼️',
+    mp4: '🎬', mov: '🎬', avi: '🎬', mkv: '🎬',
+    mp3: '🎵', wav: '🎵', flac: '🎵',
+    zip: '📦', rar: '📦', '7z': '📦', tar: '📦',
+    js: '💻', ts: '💻', py: '💻', html: '💻', css: '💻',
+    xls: '📊', xlsx: '📊', csv: '📊',
+    ppt: '📑', pptx: '📑',
+  };
+  return map[ext] || '📎';
+}
+
+function formatSize(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  if (bytes < 1024 * 1024 * 1024) return (bytes / 1024 / 1024).toFixed(1) + ' MB';
+  return (bytes / 1024 / 1024 / 1024).toFixed(2) + ' GB';
+}
+
+function addFiles(fileList) {
+  const list = document.getElementById('send-file-list');
+  [...fileList].forEach(file => {
+    sendFiles.push(file);
+    const idx = sendFiles.length - 1;
+    const el = document.createElement('div');
+    el.className = 'file-item';
+    el.id = 'file-item-' + idx;
+    el.innerHTML = `
+      <div class="file-icon">${getFileIcon(file.name)}</div>
+      <div class="file-info">
+        <div class="file-name">${file.name}</div>
+        <div class="file-size">${formatSize(file.size)}</div>
+        <div class="progress-bar-wrap" id="prog-wrap-${idx}" style="display:none">
+          <div class="progress-bar-fill" id="prog-${idx}"></div>
+        </div>
+      </div>
+      <div class="file-actions">
+        <button class="btn btn-primary" id="send-btn-${idx}" onclick="sendFile(${idx})">Send</button>
+        <button class="btn btn-danger" onclick="removeFile(${idx})">✕</button>
+      </div>
+    `;
+    list.appendChild(el);
+  });
+}
+
+function removeFile(idx) {
+  const el = document.getElementById('file-item-' + idx);
+  if (el) el.remove();
+}
+
+async function sendFile(idx) {
+  const file = sendFiles[idx];
+  if (!file) return;
+  if (!dataChannel || dataChannel.readyState !== 'open') {
+    toast('⚠️ Not connected yet!'); return;
+  }
+
+  const sendBtn = document.getElementById('send-btn-' + idx);
+  sendBtn.disabled = true;
+  sendBtn.textContent = 'Sending…';
+
+  const item = document.getElementById('file-item-' + idx);
+  item.classList.add('transferring');
+
+  const progWrap = document.getElementById('prog-wrap-' + idx);
+  const prog = document.getElementById('prog-' + idx);
+  progWrap.style.display = 'block';
+
+  // Send metadata first
+  const meta = JSON.stringify({ name: file.name, size: file.size, type: file.type });
+  dataChannel.send('META:' + meta);
+
+  // Send chunks
+  const reader = new FileReader();
+  let offset = 0;
+
+  function sendChunk() {
+    if (offset >= file.size) {
+      dataChannel.send('DONE:' + file.name);
+      item.classList.remove('transferring');
+      item.classList.add('done');
+      sendBtn.textContent = '✅ Sent';
+      prog.style.width = '100%';
+      toast('✅ ' + file.name + ' sent!');
+      return;
+    }
+    const slice = file.slice(offset, offset + CHUNK_SIZE);
+    reader.readAsArrayBuffer(slice);
+  }
+
+  reader.onload = (e) => {
+    dataChannel.send(e.target.result);
+    offset += e.target.result.byteLength;
+    const pct = Math.round((offset / file.size) * 100);
+    prog.style.width = pct + '%';
+
+    // Throttle to avoid buffer overflow
+    if (dataChannel.bufferedAmount > CHUNK_SIZE * 8) {
+      setTimeout(sendChunk, 50);
+    } else {
+      sendChunk();
+    }
+  };
+
+  sendChunk();
+}
+
+// ─── RECEIVER ────────────────────────────────────────────────────────────────
+async function createAnswer() {
+  const val = document.getElementById('recv-offer-sdp').value.trim();
+  if (!val) { toast('⚠️ Paste the offer code first'); return; }
+
+  pcRecv = new RTCPeerConnection({ iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] });
+
+  pcRecv.ondatachannel = (e) => {
+    const ch = e.channel;
+    setupReceiverChannel(ch);
+  };
+
+  pcRecv.oniceconnectionstatechange = () => {
+    const s = pcRecv.iceConnectionState;
+    const badge = document.getElementById('recv-status');
+    if (s === 'connected' || s === 'completed') {
+      badge.className = 'status-badge connected';
+      badge.innerHTML = '<div class="pulse"></div> Connected';
+      toast('🎉 Connected! Waiting for files…');
+    } else if (s === 'failed' || s === 'disconnected') {
+      badge.className = 'status-badge error';
+      badge.innerHTML = '<div class="pulse"></div> Disconnected';
+    } else {
+      badge.className = 'status-badge waiting';
+      badge.innerHTML = '<div class="pulse"></div> Connecting…';
+    }
+  };
+
+  try {
+    const offer = JSON.parse(val);
+    await pcRecv.setRemoteDescription(new RTCSessionDescription(offer));
+    const answer = await pcRecv.createAnswer();
+    await pcRecv.setLocalDescription(answer);
+    await waitForICE(pcRecv);
+
+    document.getElementById('recv-answer-sdp').value = JSON.stringify(pcRecv.localDescription);
+    document.getElementById('recv-step1').style.display = 'none';
+    document.getElementById('recv-step2').style.display = 'block';
+    document.getElementById('recv-status').className = 'status-badge waiting';
+    document.getElementById('recv-status').innerHTML = '<div class="pulse"></div> Waiting…';
+  } catch (e) {
+    toast('❌ Invalid offer code');
+  }
+}
+
+let currentMeta = null;
+
+function setupReceiverChannel(ch) {
+  ch.onmessage = (e) => {
+    const data = e.data;
+
+    if (typeof data === 'string' && data.startsWith('META:')) {
+      currentMeta = JSON.parse(data.slice(5));
+      receiveBuffer[currentMeta.name] = { buffer: [], received: 0, total: currentMeta.size, type: currentMeta.type };
+      addReceivedFileEntry(currentMeta.name, currentMeta.size, currentMeta.type);
+      return;
+    }
+
+    if (typeof data === 'string' && data.startsWith('DONE:')) {
+      const name = data.slice(5);
+      const rb = receiveBuffer[name];
+      if (!rb) return;
+      const blob = new Blob(rb.buffer, { type: rb.type });
+      const url = URL.createObjectURL(blob);
+      updateReceivedFile(name, url);
+      delete receiveBuffer[name];
+      toast('📥 ' + name + ' received!');
+      return;
+    }
+
+    // Binary chunk
+    if (currentMeta && data instanceof ArrayBuffer) {
+      const rb = receiveBuffer[currentMeta.name];
+      if (!rb) return;
+      rb.buffer.push(data);
+      rb.received += data.byteLength;
+      const pct = Math.round((rb.received / rb.total) * 100);
+      const prog = document.getElementById('recv-prog-' + safeName(currentMeta.name));
+      if (prog) prog.style.width = pct + '%';
+    }
+  };
+}
+
+function safeName(name) {
+  return name.replace(/[^a-z0-9]/gi, '_');
+}
+
+function addReceivedFileEntry(name, size, type) {
+  const list = document.getElementById('received-list');
+  // Remove empty state
+  const empty = list.querySelector('.empty-state');
+  if (empty) empty.remove();
+
+  const el = document.createElement('div');
+  el.className = 'file-item transferring';
+  el.id = 'recv-item-' + safeName(name);
+  el.innerHTML = `
+    <div class="file-icon">${getFileIcon(name)}</div>
+    <div class="file-info">
+      <div class="file-name">${name}</div>
+      <div class="file-size">${formatSize(size)}</div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar-fill" id="recv-prog-${safeName(name)}"></div>
+      </div>
+    </div>
+    <div class="file-actions">
+      <button class="btn btn-secondary" id="dl-btn-${safeName(name)}" disabled>⬇ Save</button>
+    </div>
+  `;
+  list.appendChild(el);
+}
+
+function updateReceivedFile(name, url) {
+  const item = document.getElementById('recv-item-' + safeName(name));
+  if (item) {
+    item.classList.remove('transferring');
+    item.classList.add('done');
+  }
+  const btn = document.getElementById('dl-btn-' + safeName(name));
+  if (btn) {
+    btn.disabled = false;
+    btn.textContent = '⬇ Save';
+    btn.onclick = () => {
+      const a = document.createElement('a');
+      a.href = url; a.download = name;
+      a.click();
+    };
+    btn.className = 'btn btn-primary';
+  }
+}
+</script>
+</body>
+</html>
