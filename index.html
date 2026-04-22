@@ -11,7 +11,6 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  /* Tailwind Light Theme */
   --bg: #f3f4f6; 
   --surface: #ffffff; 
   --surface-hover: #f9fafb; 
@@ -34,7 +33,6 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* Telegram Dark Theme Match */
     --bg: #0e1621; 
     --surface: #17212b; 
     --surface-hover: #242f3d; 
@@ -72,17 +70,11 @@ header {
   z-index: 10;
 }
 .header-left { display: flex; align-items: center; gap: 0.75rem; }
-.logo {
-  width: 2.2rem; height: 2.2rem; background: var(--primary); border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-}
+.logo { width: 2.2rem; height: 2.2rem; background: var(--primary); border-radius: 8px; display: flex; align-items: center; justify-content: center; }
 .logo svg { width: 1.2rem; height: 1.2rem; stroke: #fff; stroke-width: 2; fill: none; }
 .header-titles h1 { font-size: 1rem; font-weight: 600; }
 .header-titles p { font-size: 0.75rem; color: var(--text-muted); }
-.status-pill {
-  display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 500;
-  padding: 4px 10px; border-radius: 20px; background: var(--surface-hover); color: var(--text-muted);
-}
+.status-pill { display: flex; align-items: center; gap: 6px; font-size: 0.75rem; font-weight: 500; padding: 4px 10px; border-radius: 20px; background: var(--surface-hover); color: var(--text-muted); }
 .status-pill.connected { background: rgba(16, 185, 129, 0.1); color: var(--success); }
 .dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
 .dot.pulse { animation: pulse 1.5s infinite; }
@@ -102,6 +94,7 @@ header {
 .btn { width: 100%; padding: 0.875rem; border-radius: var(--radius-sm); border: none; font-weight: 600; font-family: inherit; cursor: pointer; transition: 0.2s; }
 .btn-primary { background: var(--primary); color: #fff; }
 .btn-primary:hover { background: var(--primary-hover); }
+.btn:disabled { opacity: 0.7; cursor: not-allowed; }
 .divider { margin: 2rem 0; color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; display: flex; align-items: center; gap: 1rem; }
 .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
@@ -110,7 +103,6 @@ header {
 .message { max-width: 80%; padding: 0.5rem 0.75rem; border-radius: 14px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
 .message.out { align-self: flex-end; background: var(--bubble-out); border-bottom-right-radius: 4px; }
 .message.in { align-self: flex-start; background: var(--bubble-in); border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid var(--border); }
-
 .message.emoji-only { background: transparent !important; box-shadow: none !important; border: none !important; font-size: 3.5rem; padding: 0; line-height: 1.1; }
 
 /* File Bubble */
@@ -133,14 +125,12 @@ header {
 .vp-play:active { transform: scale(0.92); }
 .vp-play svg { width: 22px; height: 22px; fill: currentColor; }
 .vp-play .icon-play { margin-left: 3px; }
-
 .vp-center { flex: 1; display: flex; align-items: center; gap: 12px; }
 .vp-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 3px; border-radius: 2px; background: rgba(0,0,0,0.15); outline: none; cursor: pointer; flex: 1; }
 .message.out .vp-slider { background: rgba(255,255,255,0.25); }
 .vp-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; }
 .message.out .vp-slider::-webkit-slider-thumb { background: #fff; }
 .message.in .vp-slider::-webkit-slider-thumb { background: var(--primary); }
-
 .vp-time { font-size: 0.75rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .message.out .vp-time { color: rgba(255,255,255,0.7); }
 .message.in .vp-time { color: var(--text-muted); }
@@ -156,10 +146,8 @@ header {
 .action-btn.send-active:hover { color: var(--primary-hover); }
 .action-btn.recording { color: var(--danger); transform: scale(1.15); background: rgba(239, 68, 68, 0.1); }
 .icon-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
-
 .chat-input { flex: 1; border: none; background: transparent; color: var(--text-main); padding: 8px 10px; font-size: 0.95rem; font-family: inherit; outline: none; resize: none; max-height: 120px; overflow-y: auto; line-height: 1.4; min-height: 22px; user-select: text; -webkit-user-select: text; }
 .chat-input::placeholder { color: var(--text-muted); }
-
 .recording-ui { flex: 1; display: none; align-items: center; justify-content: space-between; padding: 8px 10px; color: var(--text-main); font-size: 0.95rem; }
 .recording-ui.active { display: flex; }
 .rec-left { display: flex; align-items: center; gap: 10px; font-weight: 500; font-variant-numeric: tabular-nums; }
@@ -240,7 +228,6 @@ audio { display: none; }
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
         </button>
 
-        <!-- Dynamic Action Button -->
         <button class="icon-btn action-btn" id="action-btn">
           <svg viewBox="0 0 24 24" id="action-icon">
             <path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
@@ -260,7 +247,6 @@ let peer = null;
 let conn = null;
 let myPin = null;
 
-// Files & Voice State
 const sendQueue = [];
 const recvBuffers = {};
 const CHUNK = 65536; 
@@ -271,8 +257,8 @@ let audioChunks = [];
 let isRecording = false;
 let recStartTime = 0;
 let recInterval = null;
+let connectionTimeout = null;
 
-// Icons
 const ICONS = {
   mic: '<path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>',
   send: '<line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>',
@@ -281,13 +267,8 @@ const ICONS = {
 };
 
 const EMOJIS = ['😀','😂','🥰','😎','🥺','😭','😡','👍','👎','❤️','🔥','✨','🎉','💯','👀','💀','👽','💩'];
+const isOnlyEmoji = (str) => { const pure = str.replace(/\s/g, ''); return pure.length > 0 && /^[\p{Extended_Pictographic}]+$/u.test(pure); };
 
-const isOnlyEmoji = (str) => {
-  const pure = str.replace(/\s/g, '');
-  return pure.length > 0 && /^[\p{Extended_Pictographic}]+$/u.test(pure);
-};
-
-// ── UI Helpers ──────────────────────────────────────────────────
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
@@ -300,15 +281,11 @@ function updateStatus(state) {
   const dot = pill.querySelector('.dot');
   
   if (state === 'connected') {
-    pill.classList.add('connected');
-    txt.textContent = 'Connected';
-    dot.classList.remove('pulse');
+    pill.classList.add('connected'); txt.textContent = 'Connected'; dot.classList.remove('pulse');
     document.getElementById('connect-view').classList.remove('active');
     document.getElementById('chat-view').classList.add('active');
   } else {
-    pill.classList.remove('connected');
-    txt.textContent = 'Waiting';
-    dot.classList.add('pulse');
+    pill.classList.remove('connected'); txt.textContent = 'Waiting'; dot.classList.add('pulse');
     document.getElementById('chat-view').classList.remove('active');
     document.getElementById('connect-view').classList.add('active');
   }
@@ -319,8 +296,7 @@ function initEmojiPicker() {
   const picker = document.getElementById('emoji-picker');
   EMOJIS.forEach(emoji => {
     const btn = document.createElement('button');
-    btn.className = 'emoji-btn';
-    btn.textContent = emoji;
+    btn.className = 'emoji-btn'; btn.textContent = emoji;
     btn.onclick = (e) => { e.stopPropagation(); insertEmoji(emoji); };
     picker.appendChild(btn);
   });
@@ -344,26 +320,22 @@ document.addEventListener('click', (e) => {
   const picker = document.getElementById('emoji-picker');
   const btn = document.getElementById('emoji-toggle-btn');
   if (picker.classList.contains('active') && !picker.contains(e.target) && !btn.contains(e.target)) {
-    picker.classList.remove('active');
-    btn.classList.remove('active');
+    picker.classList.remove('active'); btn.classList.remove('active');
   }
 });
 
 // ── HOLD-TO-RECORD & INPUT STATE ────────────────────────────────
 function handleInputState(el) {
-  el.style.height = 'auto';
-  el.style.height = (el.scrollHeight) + 'px';
+  el.style.height = 'auto'; el.style.height = (el.scrollHeight) + 'px';
   if (isRecording) return; 
   
   const actionIcon = document.getElementById('action-icon');
   const actionBtn = document.getElementById('action-btn');
   
   if (el.value.trim().length > 0) {
-    actionIcon.innerHTML = ICONS.send;
-    actionBtn.classList.add('send-active');
+    actionIcon.innerHTML = ICONS.send; actionBtn.classList.add('send-active');
   } else {
-    actionIcon.innerHTML = ICONS.mic;
-    actionBtn.classList.remove('send-active');
+    actionIcon.innerHTML = ICONS.mic; actionBtn.classList.remove('send-active');
   }
 }
 
@@ -392,35 +364,22 @@ const startAction = async (e) => {
       stream.getTracks().forEach(track => track.stop());
     };
     
-    mediaRecorder.start();
-    isRecording = true;
-    recStartTime = Date.now();
-    
+    mediaRecorder.start(); isRecording = true; recStartTime = Date.now();
     document.getElementById('chat-input').style.display = 'none';
     document.getElementById('recording-ui').classList.add('active');
     actionBtn.classList.add('recording');
     
-    const timeEl = document.getElementById('rec-time');
-    timeEl.textContent = '00:00';
-    recInterval = setInterval(() => {
-      timeEl.textContent = formatTime((Date.now() - recStartTime) / 1000);
-    }, 1000);
+    const timeEl = document.getElementById('rec-time'); timeEl.textContent = '00:00';
+    recInterval = setInterval(() => { timeEl.textContent = formatTime((Date.now() - recStartTime) / 1000); }, 1000);
   } catch (err) { toast('Microphone access denied'); }
 };
 
 const stopAction = (e) => {
   if (e.type !== 'mouseup') e.preventDefault();
-  
-  if (document.getElementById('chat-input').value.trim().length > 0) {
-    sendTextMessage();
-    return;
-  }
+  if (document.getElementById('chat-input').value.trim().length > 0) { sendTextMessage(); return; }
   
   if (isRecording && mediaRecorder) {
-    mediaRecorder.stop();
-    isRecording = false;
-    clearInterval(recInterval);
-    
+    mediaRecorder.stop(); isRecording = false; clearInterval(recInterval);
     document.getElementById('chat-input').style.display = 'block';
     document.getElementById('recording-ui').classList.remove('active');
     actionBtn.classList.remove('recording');
@@ -434,10 +393,7 @@ window.addEventListener('mouseup', stopAction);
 window.addEventListener('touchend', stopAction);
 
 function checkEnter(e) {
-  if (e.key === 'Enter' && !e.shiftKey) {
-    e.preventDefault();
-    sendTextMessage();
-  }
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendTextMessage(); }
 }
 
 // ── PeerJS Setup (Vercel Fix: STUN Servers Included) ───────────
@@ -448,18 +404,28 @@ function getPeerConfig() {
     config: {
       'iceServers': [
         { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' }
+        { urls: 'stun:stun1.l.google.com:19302' },
+        { urls: 'stun:stun.cloudflare.com:3478' }
       ]
     }
   };
 }
 
 function initPeer() {
+  if (peer) { peer.destroy(); }
   myPin = generatePIN();
   document.getElementById('my-pin').innerText = myPin;
   peer = new Peer(`drop-app-${myPin}`, getPeerConfig()); 
-  peer.on('connection', c => { conn = c; setupConnection(); });
-  peer.on('error', err => { if(err.type === 'unavailable-id') initPeer(); });
+  
+  peer.on('connection', c => { 
+    conn = c; 
+    setupConnection(); 
+  });
+  
+  peer.on('error', err => { 
+    if(err.type === 'unavailable-id') initPeer(); 
+    else toast('Network Error: ' + err.message);
+  });
 }
 
 window.addEventListener('DOMContentLoaded', initPeer);
@@ -468,21 +434,52 @@ function connectToPeer() {
   const pin = document.getElementById('target-pin').value.trim();
   if (pin.length !== 6) return toast('Enter a 6-digit code');
   
-  document.getElementById('connect-btn').textContent = 'Connecting...';
-  if (!peer) peer = new Peer(getPeerConfig());
-  if (peer.disconnected) peer.reconnect();
+  const btn = document.getElementById('connect-btn');
+  btn.textContent = 'Connecting...';
+  btn.disabled = true;
 
-  const doConnect = () => {
+  if (peer && peer.disconnected) { peer.destroy(); peer = null; }
+  if (!peer) { peer = new Peer(getPeerConfig()); }
+
+  const establishConnection = () => {
     conn = peer.connect(`drop-app-${pin}`, { reliable: true });
-    setupConnection();
-    conn.on('error', () => { toast('Connection failed'); document.getElementById('connect-btn').textContent = 'Start Chat'; });
+
+    conn.on('open', () => {
+      clearTimeout(connectionTimeout);
+      setupConnection();
+    });
+
+    conn.on('error', (err) => {
+      clearTimeout(connectionTimeout);
+      toast('Connection error');
+      btn.textContent = 'Start Chat'; btn.disabled = false;
+    });
+
+    // 10 second timeout if signaling gets stuck
+    connectionTimeout = setTimeout(() => {
+      if (!conn || !conn.open) {
+        toast('Connection timed out. Check PIN.');
+        btn.textContent = 'Start Chat'; btn.disabled = false;
+      }
+    }, 10000);
   };
 
-  if (peer.open) doConnect(); else peer.on('open', doConnect);
+  if (peer.open) { establishConnection(); } 
+  else { 
+    peer.on('open', establishConnection);
+    peer.on('error', () => { toast('Signaling server error'); btn.textContent = 'Start Chat'; btn.disabled = false; });
+  }
 }
 
 function setupConnection() {
-  conn.on('open', () => { updateStatus('connected'); });
+  const onOpen = () => {
+    updateStatus('connected');
+    document.getElementById('connect-btn').textContent = 'Start Chat';
+    document.getElementById('connect-btn').disabled = false;
+  };
+  
+  if (conn.open) onOpen(); else conn.on('open', onOpen);
+
   conn.on('data', handleIncomingData);
   conn.on('close', () => { updateStatus('waiting'); toast('Disconnected'); });
 }
@@ -496,9 +493,7 @@ function sendTextMessage() {
   renderChatBubble('out', text);
   conn.send(JSON.stringify({ type: 'CHAT', text }));
   
-  input.value = '';
-  handleInputState(input); 
-  
+  input.value = ''; handleInputState(input); 
   document.getElementById('emoji-picker').classList.remove('active');
   document.getElementById('emoji-toggle-btn').classList.remove('active');
 }
@@ -520,22 +515,12 @@ function toggleAudio(btn) {
     if (a !== audio) {
       a.pause();
       const p = a.parentElement;
-      if(p) {
-        p.querySelector('.icon-play').style.display = 'block';
-        p.querySelector('.icon-pause').style.display = 'none';
-      }
+      if(p) { p.querySelector('.icon-play').style.display = 'block'; p.querySelector('.icon-pause').style.display = 'none'; }
     }
   });
 
-  if (audio.paused) {
-    audio.play();
-    playIcon.style.display = 'none';
-    pauseIcon.style.display = 'block';
-  } else {
-    audio.pause();
-    playIcon.style.display = 'block';
-    pauseIcon.style.display = 'none';
-  }
+  if (audio.paused) { audio.play(); playIcon.style.display = 'none'; pauseIcon.style.display = 'block'; } 
+  else { audio.pause(); playIcon.style.display = 'block'; pauseIcon.style.display = 'none'; }
 }
 
 function updateAudioUI(audio) {
@@ -566,8 +551,7 @@ function resetAudioUI(audio) {
   const timeEl = container.querySelector('.vp-time');
   const dur = parseFloat(audio.dataset.duration) || audio.duration || 1;
   
-  slider.value = 0;
-  timeEl.textContent = formatTime(0) + ' / ' + formatTime(dur);
+  slider.value = 0; timeEl.textContent = formatTime(0) + ' / ' + formatTime(dur);
 }
 
 // ── File Handling ───────────────────────────────────────────────
@@ -594,9 +578,7 @@ function processFiles(fileList, isVoice = false, voiceDuration = null) {
 }
 
 // ── UI Rendering (Bubbles) ──────────────────────────────────────
-function scrollToBottom() {
-  setTimeout(() => { chatHist.scrollTop = chatHist.scrollHeight; }, 50);
-}
+function scrollToBottom() { setTimeout(() => { chatHist.scrollTop = chatHist.scrollHeight; }, 50); }
 
 function renderChatBubble(dir, text) {
   const el = document.createElement('div');
@@ -695,12 +677,8 @@ function finalizeFileBubble(uid, name, url, isVoice, voiceDur) {
     act.style.display = 'block';
     
     const btn = document.createElement('button');
-    btn.className = 'btn-dl';
-    btn.textContent = 'Save File';
-    btn.onclick = () => {
-      const a = document.createElement('a');
-      a.href = url; a.download = name; a.click();
-    };
+    btn.className = 'btn-dl'; btn.textContent = 'Save File';
+    btn.onclick = () => { const a = document.createElement('a'); a.href = url; a.download = name; a.click(); };
     act.appendChild(btn);
   }
 }
@@ -752,10 +730,7 @@ let activeFileName = null;
 
 function handleIncomingData(d) {
   if (typeof d === 'string' && d.startsWith('{') && d.includes('"type":"CHAT"')) {
-    try {
-      const msg = JSON.parse(d);
-      renderChatBubble('in', msg.text);
-    } catch(e) {}
+    try { const msg = JSON.parse(d); renderChatBubble('in', msg.text); } catch(e) {}
     return;
   }
 
