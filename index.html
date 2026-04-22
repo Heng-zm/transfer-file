@@ -23,6 +23,8 @@
   --primary-hover: #2563eb; 
   --bubble-out: #eff6ff;
   --bubble-in: #ffffff;
+  --vp-btn-out: #3b82f6;
+  --vp-btn-in: #3b82f6;
   --success: #10b981; 
   --danger: #ef4444;
   --radius: 12px;
@@ -42,8 +44,10 @@
     --text-muted: #7f91a4; 
     --primary: #5288c1; 
     --primary-hover: #4b7db3; 
-    --bubble-out: #2b5278;
-    --bubble-in: #18222d;
+    --bubble-out: #2b5278; 
+    --bubble-in: #18222d;  
+    --vp-btn-out: #4a89c8; 
+    --vp-btn-in: #5288c1;
     --success: #50a954; 
     --danger: #ff595a;
     color-scheme: dark;
@@ -58,6 +62,7 @@ html { font-size: 16px; scroll-behavior: smooth; }
 body {
   font-family: 'Inter', sans-serif; background-color: var(--bg); color: var(--text-main);
   height: 100vh; overflow: hidden; display: flex; flex-direction: column;
+  -webkit-touch-callout: none; -webkit-user-select: none; user-select: none;
 }
 
 /* ── Header ── */
@@ -91,8 +96,8 @@ header {
 /* ── Connect View ── */
 #connect-view { padding: 2rem; max-width: 480px; margin: 0 auto; width: 100%; justify-content: center; }
 .card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-.pin-display { font-family: 'JetBrains Mono', monospace; font-size: 2.5rem; font-weight: 600; letter-spacing: 4px; color: var(--primary); margin: 1rem 0; padding: 1rem; background: var(--surface-hover); border-radius: var(--radius-sm); user-select: all; }
-.pin-input { width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 2rem; text-align: center; letter-spacing: 4px; padding: 1rem; background: var(--surface-hover); border: 1px solid var(--border-focus); border-radius: var(--radius-sm); color: var(--text-main); outline: none; margin: 1rem 0; transition: border 0.2s; }
+.pin-display { font-family: 'JetBrains Mono', monospace; font-size: 2.5rem; font-weight: 600; letter-spacing: 4px; color: var(--primary); margin: 1rem 0; padding: 1rem; background: var(--surface-hover); border-radius: var(--radius-sm); user-select: all; -webkit-user-select: all; }
+.pin-input { width: 100%; font-family: 'JetBrains Mono', monospace; font-size: 2rem; text-align: center; letter-spacing: 4px; padding: 1rem; background: var(--surface-hover); border: 1px solid var(--border-focus); border-radius: var(--radius-sm); color: var(--text-main); outline: none; margin: 1rem 0; transition: border 0.2s; user-select: auto; -webkit-user-select: auto; }
 .pin-input:focus { border-color: var(--primary); }
 .btn { width: 100%; padding: 0.875rem; border-radius: var(--radius-sm); border: none; font-weight: 600; font-family: inherit; cursor: pointer; transition: 0.2s; }
 .btn-primary { background: var(--primary); color: #fff; }
@@ -101,10 +106,12 @@ header {
 .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
 
 /* ── Chat View ── */
-.chat-history { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; }
-.message { max-width: 75%; padding: 0.5rem 0.75rem; border-radius: 12px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
-.message.out { align-self: flex-end; background: var(--bubble-out); border-bottom-right-radius: 2px; }
-.message.in { align-self: flex-start; background: var(--bubble-in); border-bottom-left-radius: 2px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+.chat-history { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 0.5rem; user-select: text; -webkit-user-select: text; }
+.message { max-width: 80%; padding: 0.5rem 0.75rem; border-radius: 14px; font-size: 0.95rem; line-height: 1.4; position: relative; word-wrap: break-word; }
+.message.out { align-self: flex-end; background: var(--bubble-out); border-bottom-right-radius: 4px; }
+.message.in { align-self: flex-start; background: var(--bubble-in); border-bottom-left-radius: 4px; box-shadow: 0 1px 2px rgba(0,0,0,0.05); border: 1px solid var(--border); }
+
+.message.emoji-only { background: transparent !important; box-shadow: none !important; border: none !important; font-size: 3.5rem; padding: 0; line-height: 1.1; }
 
 /* File Bubble */
 .file-bubble { display: flex; flex-direction: column; min-width: 220px; gap: 6px; }
@@ -117,52 +124,42 @@ header {
 .file-prog-fill { height: 100%; background: var(--primary); width: 0%; transition: width 0.1s; }
 .file-actions { align-self: flex-end; margin-top: 4px; }
 .btn-dl { background: transparent; border: 1px solid var(--border); color: var(--text-main); font-size: 0.75rem; padding: 4px 10px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
-.btn-dl:hover { background: rgba(0,0,0,0.05); }
 
-/* ── Custom Voice Player UI ── */
-.voice-player {
-  display: flex; align-items: center; gap: 12px; min-width: 220px;
-}
-.message.out .voice-player { --vp-fg: #fff; --vp-bg: var(--primary); --vp-track: rgba(255,255,255,0.3); }
-.message.in  .voice-player { --vp-fg: var(--primary); --vp-bg: var(--surface); --vp-track: rgba(0,0,0,0.15); }
+/* Voice Player */
+.voice-player { display: flex; align-items: center; gap: 12px; min-width: 260px; padding: 2px 4px; }
+.vp-play { width: 46px; height: 46px; border-radius: 50%; border: none; cursor: pointer; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.1s; }
+.message.out .vp-play { background: var(--vp-btn-out); }
+.message.in  .vp-play { background: var(--vp-btn-in); }
+.vp-play:active { transform: scale(0.92); }
+.vp-play svg { width: 22px; height: 22px; fill: currentColor; }
+.vp-play .icon-play { margin-left: 3px; }
 
-.vp-play {
-  width: 38px; height: 38px; border-radius: 50%; border: none; cursor: pointer;
-  background: var(--vp-fg); color: var(--vp-bg); display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0; transition: transform 0.1s;
-}
-.vp-play:active { transform: scale(0.95); }
-.vp-play svg { width: 18px; height: 18px; fill: currentColor; }
+.vp-center { flex: 1; display: flex; align-items: center; gap: 12px; }
+.vp-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 3px; border-radius: 2px; background: rgba(0,0,0,0.15); outline: none; cursor: pointer; flex: 1; }
+.message.out .vp-slider { background: rgba(255,255,255,0.25); }
+.vp-slider::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; }
+.message.out .vp-slider::-webkit-slider-thumb { background: #fff; }
+.message.in .vp-slider::-webkit-slider-thumb { background: var(--primary); }
 
-.vp-center { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-.vp-slider {
-  -webkit-appearance: none; appearance: none; width: 100%; height: 4px; border-radius: 2px;
-  background: var(--vp-track); outline: none; cursor: pointer; position: relative;
-}
-.vp-slider::-webkit-slider-thumb {
-  -webkit-appearance: none; width: 12px; height: 12px; background: var(--vp-fg); border-radius: 50%;
-}
-.vp-slider::-moz-range-thumb {
-  width: 12px; height: 12px; background: var(--vp-fg); border-radius: 50%; border: none;
-}
-.vp-time { font-size: 0.75rem; font-variant-numeric: tabular-nums; opacity: 0.8; }
+.vp-time { font-size: 0.75rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.message.out .vp-time { color: rgba(255,255,255,0.7); }
+.message.in .vp-time { color: var(--text-muted); }
 
-/* ── Telegram-style Input Bar ── */
+/* ── Input Bar ── */
 .chat-input-wrapper { padding: 10px 15px 20px; background: var(--bg); position: relative; }
 .chat-input-bar { display: flex; align-items: flex-end; background: var(--surface); border-radius: 16px; padding: 6px 8px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
-.icon-btn { background: transparent; border: none; color: var(--text-muted); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: color 0.2s, background 0.2s; flex-shrink: 0; }
+.icon-btn { background: transparent; border: none; color: var(--text-muted); width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: color 0.2s, background 0.2s; flex-shrink: 0; -webkit-tap-highlight-color: transparent; }
 .icon-btn:hover { color: var(--text-main); background: var(--surface-hover); }
 .icon-btn.active { color: var(--primary); background: var(--surface-hover); }
-.icon-btn.send-active { color: var(--primary); }
-.icon-btn.send-active:hover { color: var(--primary-hover); }
-.icon-btn.stop-active { color: var(--danger); }
-.icon-btn.stop-active:hover { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-.icon-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.action-btn { transition: all 0.2s; }
+.action-btn.send-active { color: var(--primary); }
+.action-btn.send-active:hover { color: var(--primary-hover); }
+.action-btn.recording { color: var(--danger); transform: scale(1.15); background: rgba(239, 68, 68, 0.1); }
+.icon-btn svg { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
 
-.chat-input { flex: 1; border: none; background: transparent; color: var(--text-main); padding: 8px 10px; font-size: 0.95rem; font-family: inherit; outline: none; resize: none; max-height: 120px; overflow-y: auto; line-height: 1.4; min-height: 22px; }
+.chat-input { flex: 1; border: none; background: transparent; color: var(--text-main); padding: 8px 10px; font-size: 0.95rem; font-family: inherit; outline: none; resize: none; max-height: 120px; overflow-y: auto; line-height: 1.4; min-height: 22px; user-select: text; -webkit-user-select: text; }
 .chat-input::placeholder { color: var(--text-muted); }
 
-/* Voice recording state */
 .recording-ui { flex: 1; display: none; align-items: center; justify-content: space-between; padding: 8px 10px; color: var(--text-main); font-size: 0.95rem; }
 .recording-ui.active { display: flex; }
 .rec-left { display: flex; align-items: center; gap: 10px; font-weight: 500; font-variant-numeric: tabular-nums; }
@@ -170,11 +167,7 @@ header {
 .rec-text { font-size: 0.9rem; color: var(--text-muted); }
 
 /* ── Emoji Picker ── */
-.emoji-picker {
-  display: none; position: absolute; bottom: 70px; right: 15px; background: var(--surface);
-  border: 1px solid var(--border); border-radius: var(--radius); padding: 12px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.15); grid-template-columns: repeat(6, 1fr); gap: 8px; z-index: 100;
-}
+.emoji-picker { display: none; position: absolute; bottom: 70px; right: 15px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.15); grid-template-columns: repeat(6, 1fr); gap: 8px; z-index: 100; }
 .emoji-picker.active { display: grid; animation: popUp 0.2s cubic-bezier(0.16, 1, 0.3, 1); }
 @keyframes popUp { from { opacity: 0; transform: translateY(10px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
 .emoji-btn { background: none; border: none; font-size: 1.4rem; cursor: pointer; border-radius: 6px; padding: 4px; transition: 0.1s; display: flex; align-items: center; justify-content: center; }
@@ -185,7 +178,7 @@ header {
 #toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
 input[type="file"] { display: none; }
-audio { display: none; } /* Hide default audio */
+audio { display: none; }
 </style>
 </head>
 <body>
@@ -206,21 +199,17 @@ audio { display: none; } /* Hide default audio */
 </header>
 
 <div class="app-body">
-  <!-- Connect View -->
   <div class="view active" id="connect-view">
     <div class="card">
       <p style="color:var(--text-muted); font-size:0.9rem;">Your Connection Code</p>
       <div class="pin-display" id="my-pin">------</div>
       <p style="font-size:0.8rem; color:var(--text-muted);">Share this with your friend</p>
-      
       <div class="divider">or connect to friend</div>
-      
       <input type="text" id="target-pin" class="pin-input" placeholder="000000" maxlength="6" autocomplete="off" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
       <button class="btn btn-primary" id="connect-btn" onclick="connectToPeer()">Start Chat</button>
     </div>
   </div>
 
-  <!-- Chat View -->
   <div class="view" id="chat-view">
     <div class="chat-history" id="chat-history">
       <div style="text-align:center; color:var(--text-muted); font-size:0.8rem; margin: 1rem 0;">
@@ -229,36 +218,30 @@ audio { display: none; } /* Hide default audio */
     </div>
     
     <div class="chat-input-wrapper">
-      <!-- Emoji Picker -->
       <div class="emoji-picker" id="emoji-picker"></div>
 
       <div class="chat-input-bar">
-        <!-- Attachment Icon -->
         <button class="icon-btn" onclick="document.getElementById('file-input').click()">
           <svg viewBox="0 0 24 24"><path d="M21.44 11.05l-9.19 9.19a6 6 0 01-8.49-8.49l9.19-9.19a4 4 0 015.66 5.66l-9.2 9.19a2 2 0 01-2.83-2.83l8.49-8.48"/></svg>
         </button>
-        
         <input type="file" id="file-input" multiple>
         
-        <!-- Text Input -->
-        <textarea id="chat-input" class="chat-input" placeholder="Write a message..." rows="1" oninput="handleInputState(this)" onkeydown="checkEnter(event)"></textarea>
+        <textarea id="chat-input" class="chat-input" placeholder="Message..." rows="1" oninput="handleInputState(this)" onkeydown="checkEnter(event)"></textarea>
         
-        <!-- Voice Recording UI -->
         <div class="recording-ui" id="recording-ui">
           <div class="rec-left">
             <span class="rec-dot"></span>
             <span id="rec-time">00:00</span>
           </div>
-          <span class="rec-text">Recording...</span>
+          <span class="rec-text">Release to send</span>
         </div>
 
-        <!-- Emoji Icon -->
         <button class="icon-btn" id="emoji-toggle-btn" onclick="toggleEmojiPicker(event)" style="margin-right:2px;">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
         </button>
 
-        <!-- Dynamic Action Button (Mic / Send / Stop) -->
-        <button class="icon-btn action-btn" id="action-btn" onclick="handleActionBtn()">
+        <!-- Dynamic Action Button -->
+        <button class="icon-btn action-btn" id="action-btn">
           <svg viewBox="0 0 24 24" id="action-icon">
             <path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
           </svg>
@@ -277,13 +260,12 @@ let peer = null;
 let conn = null;
 let myPin = null;
 
-// File Transfer State
+// Files & Voice State
 const sendQueue = [];
 const recvBuffers = {};
 const CHUNK = 65536; 
 let fileCounter = 0;
 
-// Voice Recording State
 let mediaRecorder = null;
 let audioChunks = [];
 let isRecording = false;
@@ -294,12 +276,16 @@ let recInterval = null;
 const ICONS = {
   mic: '<path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>',
   send: '<line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>',
-  stop: '<rect x="7" y="7" width="10" height="10" rx="2" ry="2"></rect>',
   play: '<path d="M8 5v14l11-7z"/>',
   pause: '<path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/>'
 };
 
 const EMOJIS = ['😀','😂','🥰','😎','🥺','😭','😡','👍','👎','❤️','🔥','✨','🎉','💯','👀','💀','👽','💩'];
+
+const isOnlyEmoji = (str) => {
+  const pure = str.replace(/\s/g, '');
+  return pure.length > 0 && /^[\p{Extended_Pictographic}]+$/u.test(pure);
+};
 
 // ── UI Helpers ──────────────────────────────────────────────────
 function toast(msg) {
@@ -328,17 +314,14 @@ function updateStatus(state) {
   }
 }
 
-// ── Emoji Picker Logic ──────────────────────────────────────────
+// ── Emoji Picker ────────────────────────────────────────────────
 function initEmojiPicker() {
   const picker = document.getElementById('emoji-picker');
   EMOJIS.forEach(emoji => {
     const btn = document.createElement('button');
     btn.className = 'emoji-btn';
     btn.textContent = emoji;
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      insertEmoji(emoji);
-    };
+    btn.onclick = (e) => { e.stopPropagation(); insertEmoji(emoji); };
     picker.appendChild(btn);
   });
 }
@@ -346,10 +329,8 @@ initEmojiPicker();
 
 function toggleEmojiPicker(e) {
   e.stopPropagation();
-  const picker = document.getElementById('emoji-picker');
-  const btn = document.getElementById('emoji-toggle-btn');
-  picker.classList.toggle('active');
-  btn.classList.toggle('active');
+  document.getElementById('emoji-picker').classList.toggle('active');
+  document.getElementById('emoji-toggle-btn').classList.toggle('active');
 }
 
 function insertEmoji(emoji) {
@@ -359,7 +340,6 @@ function insertEmoji(emoji) {
   input.focus();
 }
 
-// Close emoji picker when clicking outside
 document.addEventListener('click', (e) => {
   const picker = document.getElementById('emoji-picker');
   const btn = document.getElementById('emoji-toggle-btn');
@@ -369,12 +349,10 @@ document.addEventListener('click', (e) => {
   }
 });
 
-
-// ── Input & Action Button Logic ─────────────────────────────────
+// ── HOLD-TO-RECORD & INPUT STATE ────────────────────────────────
 function handleInputState(el) {
   el.style.height = 'auto';
   el.style.height = (el.scrollHeight) + 'px';
-  
   if (isRecording) return; 
   
   const actionIcon = document.getElementById('action-icon');
@@ -389,16 +367,71 @@ function handleInputState(el) {
   }
 }
 
-function handleActionBtn() {
-  const input = document.getElementById('chat-input');
-  const text = input.value.trim();
+const actionBtn = document.getElementById('action-btn');
+
+const startAction = async (e) => {
+  if (e.type !== 'mousedown') e.preventDefault(); 
+  if (document.getElementById('chat-input').value.trim().length > 0) return;
   
-  if (text.length > 0 && !isRecording) {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream);
+    audioChunks = [];
+    
+    mediaRecorder.ondataavailable = e => { if(e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+      const finalDuration = (Date.now() - recStartTime) / 1000;
+      
+      if (finalDuration >= 1.0 && audioBlob.size > 1000) { 
+        const file = new File([audioBlob], `Voice_${Date.now()}.webm`, { type: 'audio/webm' });
+        processFiles([file], true, finalDuration);
+      } else if (finalDuration > 0 && finalDuration < 1.0) {
+        toast("Hold to record");
+      }
+      stream.getTracks().forEach(track => track.stop());
+    };
+    
+    mediaRecorder.start();
+    isRecording = true;
+    recStartTime = Date.now();
+    
+    document.getElementById('chat-input').style.display = 'none';
+    document.getElementById('recording-ui').classList.add('active');
+    actionBtn.classList.add('recording');
+    
+    const timeEl = document.getElementById('rec-time');
+    timeEl.textContent = '00:00';
+    recInterval = setInterval(() => {
+      timeEl.textContent = formatTime((Date.now() - recStartTime) / 1000);
+    }, 1000);
+  } catch (err) { toast('Microphone access denied'); }
+};
+
+const stopAction = (e) => {
+  if (e.type !== 'mouseup') e.preventDefault();
+  
+  if (document.getElementById('chat-input').value.trim().length > 0) {
     sendTextMessage();
-  } else {
-    toggleVoiceRecord();
+    return;
   }
-}
+  
+  if (isRecording && mediaRecorder) {
+    mediaRecorder.stop();
+    isRecording = false;
+    clearInterval(recInterval);
+    
+    document.getElementById('chat-input').style.display = 'block';
+    document.getElementById('recording-ui').classList.remove('active');
+    actionBtn.classList.remove('recording');
+    handleInputState(document.getElementById('chat-input'));
+  }
+};
+
+actionBtn.addEventListener('mousedown', startAction);
+actionBtn.addEventListener('touchstart', startAction, {passive: false});
+window.addEventListener('mouseup', stopAction);
+window.addEventListener('touchend', stopAction);
 
 function checkEnter(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
@@ -407,13 +440,24 @@ function checkEnter(e) {
   }
 }
 
-// ── PeerJS Setup ────────────────────────────────────────────────
+// ── PeerJS Setup (Vercel Fix: STUN Servers Included) ───────────
 function generatePIN() { return Math.floor(100000 + Math.random() * 900000).toString(); }
+
+function getPeerConfig() {
+  return {
+    config: {
+      'iceServers': [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    }
+  };
+}
 
 function initPeer() {
   myPin = generatePIN();
   document.getElementById('my-pin').innerText = myPin;
-  peer = new Peer(`drop-app-${myPin}`); 
+  peer = new Peer(`drop-app-${myPin}`, getPeerConfig()); 
   peer.on('connection', c => { conn = c; setupConnection(); });
   peer.on('error', err => { if(err.type === 'unavailable-id') initPeer(); });
 }
@@ -425,7 +469,7 @@ function connectToPeer() {
   if (pin.length !== 6) return toast('Enter a 6-digit code');
   
   document.getElementById('connect-btn').textContent = 'Connecting...';
-  if (!peer) peer = new Peer();
+  if (!peer) peer = new Peer(getPeerConfig());
   if (peer.disconnected) peer.reconnect();
 
   const doConnect = () => {
@@ -443,7 +487,7 @@ function setupConnection() {
   conn.on('close', () => { updateStatus('waiting'); toast('Disconnected'); });
 }
 
-// ── Chat & Voice Logic ──────────────────────────────────────────
+// ── Chat & Messaging ────────────────────────────────────────────
 function sendTextMessage() {
   const input = document.getElementById('chat-input');
   const text = input.value.trim();
@@ -455,7 +499,6 @@ function sendTextMessage() {
   input.value = '';
   handleInputState(input); 
   
-  // Close emoji picker if open
   document.getElementById('emoji-picker').classList.remove('active');
   document.getElementById('emoji-toggle-btn').classList.remove('active');
 }
@@ -466,81 +509,32 @@ function formatTime(sec) {
   return `${m}:${s}`;
 }
 
-async function toggleVoiceRecord() {
-  const actionIcon = document.getElementById('action-icon');
-  const actionBtn = document.getElementById('action-btn');
-  const inputEl = document.getElementById('chat-input');
-  const recUi = document.getElementById('recording-ui');
-  const timeEl = document.getElementById('rec-time');
-
-  if (!isRecording) {
-    // Start Recording
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      mediaRecorder = new MediaRecorder(stream);
-      audioChunks = [];
-      
-      mediaRecorder.ondataavailable = e => { if(e.data.size > 0) audioChunks.push(e.data); };
-      mediaRecorder.onstop = () => {
-        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
-        const finalDuration = (Date.now() - recStartTime) / 1000;
-        
-        if (audioBlob.size > 1000) { 
-          const file = new File([audioBlob], `Voice_Message_${Date.now()}.webm`, { type: 'audio/webm' });
-          processFiles([file], true, finalDuration);
-        }
-        stream.getTracks().forEach(track => track.stop());
-      };
-      
-      mediaRecorder.start();
-      isRecording = true;
-      recStartTime = Date.now();
-      
-      inputEl.style.display = 'none';
-      recUi.classList.add('active');
-      actionIcon.innerHTML = ICONS.stop;
-      actionBtn.classList.remove('send-active');
-      actionBtn.classList.add('stop-active');
-      
-      recInterval = setInterval(() => {
-        timeEl.textContent = formatTime((Date.now() - recStartTime) / 1000);
-      }, 1000);
-
-    } catch (err) { toast('Microphone access denied'); }
-  } else {
-    // Stop Recording
-    mediaRecorder.stop();
-    isRecording = false;
-    clearInterval(recInterval);
-    timeEl.textContent = '00:00';
-    
-    inputEl.style.display = 'block';
-    recUi.classList.remove('active');
-    actionBtn.classList.remove('stop-active');
-    handleInputState(inputEl); 
-  }
-}
-
 // ── Custom Audio Player Controls ────────────────────────────────
 function toggleAudio(btn) {
   const container = btn.closest('.voice-player');
   const audio = container.querySelector('audio');
+  const playIcon = btn.querySelector('.icon-play');
+  const pauseIcon = btn.querySelector('.icon-pause');
   
-  // Pause others
   document.querySelectorAll('audio').forEach(a => {
     if (a !== audio) {
       a.pause();
-      const otherBtn = a.parentElement.querySelector('.vp-play');
-      if(otherBtn) otherBtn.innerHTML = ICONS.play;
+      const p = a.parentElement;
+      if(p) {
+        p.querySelector('.icon-play').style.display = 'block';
+        p.querySelector('.icon-pause').style.display = 'none';
+      }
     }
   });
 
   if (audio.paused) {
     audio.play();
-    btn.innerHTML = ICONS.pause;
+    playIcon.style.display = 'none';
+    pauseIcon.style.display = 'block';
   } else {
     audio.pause();
-    btn.innerHTML = ICONS.play;
+    playIcon.style.display = 'block';
+    pauseIcon.style.display = 'none';
   }
 }
 
@@ -549,7 +543,6 @@ function updateAudioUI(audio) {
   const slider = container.querySelector('.vp-slider');
   const timeEl = container.querySelector('.vp-time');
   
-  // Bypass Chrome WebM Infinity bug by using passed dataset duration
   const dur = parseFloat(audio.dataset.duration) || audio.duration || 1;
   const progress = (audio.currentTime / dur) * 100;
   
@@ -566,12 +559,13 @@ function seekAudio(slider) {
 
 function resetAudioUI(audio) {
   const container = audio.parentElement;
-  const btn = container.querySelector('.vp-play');
+  container.querySelector('.icon-play').style.display = 'block';
+  container.querySelector('.icon-pause').style.display = 'none';
+  
   const slider = container.querySelector('.vp-slider');
   const timeEl = container.querySelector('.vp-time');
   const dur = parseFloat(audio.dataset.duration) || audio.duration || 1;
   
-  btn.innerHTML = ICONS.play;
   slider.value = 0;
   timeEl.textContent = formatTime(0) + ' / ' + formatTime(dur);
 }
@@ -607,6 +601,7 @@ function scrollToBottom() {
 function renderChatBubble(dir, text) {
   const el = document.createElement('div');
   el.className = `message ${dir}`;
+  if (isOnlyEmoji(text)) el.classList.add('emoji-only');
   el.textContent = text;
   chatHist.appendChild(el);
   scrollToBottom();
@@ -632,22 +627,27 @@ function renderFileBubble(dir, uid, name, size, isVoice, url, voiceDur = 0) {
   if (isVoice && url) {
     el.innerHTML = `
       <div class="voice-player">
-        <button class="vp-play" onclick="toggleAudio(this)">${ICONS.play}</button>
+        <button class="vp-play" onclick="toggleAudio(this)">
+          <svg class="icon-play" viewBox="0 0 24 24">${ICONS.play}</svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;">${ICONS.pause}</svg>
+        </button>
         <div class="vp-center">
           <input type="range" class="vp-slider" value="0" max="100" step="0.1" oninput="seekAudio(this)">
+          <span class="vp-time">0:00 / ${formatTime(voiceDur)}</span>
         </div>
-        <span class="vp-time">0:00 / ${formatTime(voiceDur)}</span>
         <audio src="${url}" data-duration="${voiceDur}" ontimeupdate="updateAudioUI(this)" onended="resetAudioUI(this)"></audio>
       </div>
     `;
   } else if (isVoice) {
     el.innerHTML = `
       <div class="voice-player" style="opacity:0.6">
-        <button class="vp-play" disabled>${ICONS.play}</button>
-        <div class="vp-center"><input type="range" class="vp-slider" value="0" disabled></div>
-        <span class="vp-time">${dir==='out'?'Sending...':'Receiving...'}</span>
+        <button class="vp-play" disabled><svg class="icon-play" viewBox="0 0 24 24">${ICONS.play}</svg></button>
+        <div class="vp-center">
+          <input type="range" class="vp-slider" value="0" disabled>
+          <span class="vp-time">${dir==='out'?'Sending...':'Receiving...'}</span>
+        </div>
       </div>
-      <div class="file-prog-bg" id="pbg-${uid}" style="margin-top:8px"><div class="file-prog-fill" id="pf-${uid}"></div></div>
+      <div class="file-prog-bg" id="pbg-${uid}" style="margin-top:8px; opacity:0.5"><div class="file-prog-fill" id="pf-${uid}"></div></div>
     `;
   } else {
     el.innerHTML = `
@@ -677,11 +677,14 @@ function finalizeFileBubble(uid, name, url, isVoice, voiceDur) {
   if (isVoice) {
     el.innerHTML = `
       <div class="voice-player">
-        <button class="vp-play" onclick="toggleAudio(this)">${ICONS.play}</button>
+        <button class="vp-play" onclick="toggleAudio(this)">
+          <svg class="icon-play" viewBox="0 0 24 24">${ICONS.play}</svg>
+          <svg class="icon-pause" viewBox="0 0 24 24" style="display:none;">${ICONS.pause}</svg>
+        </button>
         <div class="vp-center">
           <input type="range" class="vp-slider" value="0" max="100" step="0.1" oninput="seekAudio(this)">
+          <span class="vp-time">0:00 / ${formatTime(voiceDur)}</span>
         </div>
-        <span class="vp-time">0:00 / ${formatTime(voiceDur)}</span>
         <audio src="${url}" data-duration="${voiceDur}" ontimeupdate="updateAudioUI(this)" onended="resetAudioUI(this)"></audio>
       </div>
     `;
