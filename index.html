@@ -11,6 +11,7 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
+  /* Tailwind Light Theme */
   --bg: #f3f4f6; 
   --surface: #ffffff; 
   --surface-hover: #f9fafb; 
@@ -33,6 +34,7 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
+    /* Telegram Dark Theme Match */
     --bg: #0e1621; 
     --surface: #17212b; 
     --surface-hover: #242f3d; 
@@ -228,6 +230,7 @@ audio { display: none; }
           <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg>
         </button>
 
+        <!-- Dynamic Action Button -->
         <button class="icon-btn action-btn" id="action-btn">
           <svg viewBox="0 0 24 24" id="action-icon">
             <path d="M12 2a3 3 0 00-3 3v7a3 3 0 006 0V5a3 3 0 00-3-3z"/><path d="M19 10v2a7 7 0 01-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/>
@@ -396,23 +399,23 @@ function checkEnter(e) {
   if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendTextMessage(); }
 }
 
-// ── PeerJS Setup (Vercel Fix: STUN Servers Included) ───────────
+// ── PeerJS Setup (With comprehensive STUN list) ───────────────
 function generatePIN() { return Math.floor(100000 + Math.random() * 900000).toString(); }
 
 function getPeerConfig() {
   return {
     config: {
       'iceServers': [
-{ urls: "stun:stun.l.google.com:19302" },
-{ urls: "stun:stun.l.google.com:5349" },
-{ urls: "stun:stun1.l.google.com:3478" },
-{ urls: "stun:stun1.l.google.com:5349" },
-{ urls: "stun:stun2.l.google.com:19302" },
-{ urls: "stun:stun2.l.google.com:5349" },
-{ urls: "stun:stun3.l.google.com:3478" },
-{ urls: "stun:stun3.l.google.com:5349" },
-{ urls: "stun:stun4.l.google.com:19302" },
-{ urls: "stun:stun4.l.google.com:5349" }
+        { urls: "stun:stun.l.google.com:19302" },
+        { urls: "stun:stun.l.google.com:5349" },
+        { urls: "stun:stun1.l.google.com:3478" },
+        { urls: "stun:stun1.l.google.com:5349" },
+        { urls: "stun:stun2.l.google.com:19302" },
+        { urls: "stun:stun2.l.google.com:5349" },
+        { urls: "stun:stun3.l.google.com:3478" },
+        { urls: "stun:stun3.l.google.com:5349" },
+        { urls: "stun:stun4.l.google.com:19302" },
+        { urls: "stun:stun4.l.google.com:5349" }
       ]
     }
   };
@@ -462,7 +465,6 @@ function connectToPeer() {
       btn.textContent = 'Start Chat'; btn.disabled = false;
     });
 
-    // 10 second timeout if signaling gets stuck
     connectionTimeout = setTimeout(() => {
       if (!conn || !conn.open) {
         toast('Connection timed out. Check PIN.');
